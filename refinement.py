@@ -1,72 +1,101 @@
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from exploration import df_salary
+from scipy.stats import boxcox
 
-# normalization
-scaler_norm = MinMaxScaler()
-numeric_columns = ['Age', 'Years of Experience', 'Salary']
-df_salary[numeric_columns] = scaler_norm.fit_transform(df_salary[numeric_columns])
+# replacement of misspellings / other words
+df_salary['Education Level'] = df_salary['Education Level'].replace({
+    "Bachelor's Degree": "Bachelor's",
+    "Master's Degree": "Master's",
+    "phD": "PhD"
+})
 
-print(df_salary)
+# review
+print('\nNumber of entries for each education level:')
+print(df_salary['Education Level'].value_counts())
 
-# Visualization of normalized data - histograms for Age, Years of Experience and Salary
-plt.figure(figsize=(12, 4))
 
-plt.subplot(1, 3, 1)
-plt.hist(df_salary['Age'], bins=20, color='blue', alpha=0.7)
-plt.title('Normalized Age', fontweight='bold')
-plt.xlabel('Age')
-plt.ylabel('Frequency')
-plt.grid(False)
+# remove NA values
+df_salary_cleaned = df_salary.dropna()
 
-plt.subplot(1, 3, 2)
-plt.hist(df_salary['Years of Experience'], bins=20, color='green', alpha=0.7)
-plt.title('Normalized Years of Experience', fontweight='bold')
-plt.xlabel('Years of Experience')
-plt.ylabel('Frequency')
-plt.grid(False)
+# review
+print('\nNumber of NA values for each column:')
+print(df_salary_cleaned.isnull().sum())
+print(df_salary_cleaned)
 
-plt.subplot(1, 3, 3)
-plt.hist(df_salary['Salary'], bins=20, color='red', alpha=0.7)
-plt.title('Normalized Salary', fontweight='bold')
+
+# remove duplicates --> not used in the following - only demonstration
+df_salary_wo_duplicates = df_salary_cleaned.drop_duplicates()
+
+
+# handling of outliers --> remove only salaries below 20.000
+df_salary_cleaned = df_salary_cleaned[df_salary_cleaned['Salary'] >= 20000]
+
+# review
+print("\n Minimum salary:")
+print(df_salary_cleaned['Salary'].min())
+
+
+# remove illogical data
+df_salary_cleaned = df_salary_cleaned[df_salary_cleaned['Career start (age)'] >= 18]
+
+# review
+print('\nDataFrame with illogical career start ages:')
+print(df_salary_cleaned[(df_salary_cleaned['Career start (age)'] < 18)])
+
+
+# Feature transformation - squared, logarithmic and box-cox transformation for salary
+df_salary_cleaned['Squared'] = np.sqrt(df_salary_cleaned['Salary'])
+df_salary_cleaned['Logarithmic'] = np.log(df_salary_cleaned['Salary'] + 1)
+df_salary_cleaned['BoxCox'], _ = boxcox(df_salary_cleaned['Salary'] + 1)
+
+plt.figure(figsize=(12, 8))
+
+# Original data - histogram
+plt.subplot(2, 2, 1)
+plt.hist(df_salary_cleaned['Salary'], bins=6, color='skyblue', edgecolor='black')
+plt.title('Original Salary Distribution', fontweight='bold')
 plt.xlabel('Salary')
 plt.ylabel('Frequency')
-plt.grid(False)
 
-plt.tight_layout(pad=1.0)
+# Squared Transformation - histogram
+plt.subplot(2, 2, 2)
+plt.hist(df_salary_cleaned['Squared'], bins=6, color='lightgreen', edgecolor='black')
+plt.title('Squared Transformation', fontweight='bold')
+plt.xlabel('Squared Salary')
+plt.ylabel('Frequency')
+
+# Logarithmic Transformation - histogram
+plt.subplot(2, 2, 3)
+plt.hist(df_salary_cleaned['Logarithmic'], bins=6, color='salmon', edgecolor='black')
+plt.title('Logarithmic Transformation', fontweight='bold')
+plt.xlabel('Logarithmic Salary')
+plt.ylabel('Frequency')
+
+# Box-Cox-Transformation - histogram
+plt.subplot(2, 2, 4)
+plt.hist(df_salary_cleaned['BoxCox'], bins=6, color='orange', edgecolor='black')
+plt.title('Box-Cox Transformation', fontweight='bold')
+plt.xlabel('Box-Cox Transformed Salary')
+plt.ylabel('Frequency')
+
+plt.tight_layout()
 plt.show()
 
 
-# standardization
-scaler_std = StandardScaler()
-numeric_columns = ['Age', 'Years of Experience', 'Salary']
-df_salary[numeric_columns] = scaler_std.fit_transform(df_salary[numeric_columns])
+# Feature construction
+# adding of year of birth (data from 2024)
+current_year = 2024
+df_salary_cleaned['Birth Year'] = current_year - df_salary_cleaned['Age']
 
-print(df_salary)
+# adding of salary rank
+df_salary_cleaned['Salary Rank'] = df_salary_cleaned['Salary'].rank(ascending=False, method='min')
 
-# Visualization of standardized data - histograms for Age, Years of Experience and Salary
-plt.figure(figsize=(12, 4))
+# review
+print('Data set "Salary data" including new columns:')
+print(df_salary_cleaned)
 
-plt.subplot(1, 3, 1)
-plt.hist(df_salary['Age'], bins=20, color='blue', alpha=0.7)
-plt.title('Standardized Age', fontweight='bold')
-plt.xlabel('Age')
-plt.ylabel('Frequency')
-plt.grid(False)
 
-plt.subplot(1, 3, 2)
-plt.hist(df_salary['Years of Experience'], bins=20, color='green', alpha=0.7)
-plt.title('Standardized Years of Experience', fontweight='bold')
-plt.xlabel('Years of Experience')
-plt.ylabel('Frequency')
-plt.grid(False)
-
-plt.subplot(1, 3, 3)
-plt.hist(df_salary['Salary'], bins=20, color='red', alpha=0.7)
-plt.title('Standardized Salary', fontweight='bold')
-plt.xlabel('Salary')
-plt.ylabel('Frequency')
-plt.grid(False)
-
-plt.tight_layout(pad=1.0)
-plt.show()
+# save cleaned file
+df_salary_cleaned.to_csv(r'D:\Fortbildung\IU - Data Analyst Python\4. Modul - Data Quality and Data Wrangling\Task\
+Cleaned_Salary_Data.csv', index=False)

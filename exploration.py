@@ -5,18 +5,12 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from itertools import compress
 
 # load csv file
-file_path = r'D:\Fortbildung\IU - Data Analyst Python\4. Modul - Data Quality and Data Wrangling\Task\
-Data set - Salary Data.csv'
+file_path = r'D:\Fortbildung\IU - Data Analyst Python\4. Modul - Data Quality and Data Wrangling\Task\Data set - Salary Data.csv'
 df_salary = pd.read_csv(file_path)
 
 
 # general information about the data set
 print(df_salary.info())
-
-
-# filtering for checking spelling
-filtered_wo_duplicates = df_salary[['Gender', 'Education Level']].drop_duplicates()
-print(filtered_wo_duplicates)
 
 
 # pivot for interrecord structuring + checking missing values
@@ -27,7 +21,7 @@ print(pivot_education)
 
 # check missing values
 missing_values_per_column = df_salary.isnull().sum()
-print("Missing values per column:")
+print("\nMissing values per column:")
 print(missing_values_per_column)
 
 empty_rows = df_salary.isnull().all(axis=1)
@@ -35,12 +29,17 @@ num_empty_rows = empty_rows.sum()
 print(f"\nNumber of empty rows: {num_empty_rows}\n")
 
 
+# filtering for checking spelling
+filtered_wo_duplicates = df_salary[['Gender', 'Education Level']].drop_duplicates()
+print(filtered_wo_duplicates)
+
+
 # check duplicates
 duplicate_rows = df_salary[df_salary.duplicated(keep=False)]
 unique_duplicate_rows = duplicate_rows.drop_duplicates()
 
 num_unique_duplicates = unique_duplicate_rows.shape[0]
-print(f"Number of duplicated rows: {num_unique_duplicates}")
+print(f"\nNumber of duplicated rows: {num_unique_duplicates}")
 
 # show duplicates
 if num_unique_duplicates > 0:
@@ -61,9 +60,13 @@ Q3 = df_salary['Salary'].quantile(0.75)
 IQR = Q3 - Q1
 
 outliers = df_salary[(df_salary['Salary'] < (Q1 - 1.5 * IQR)) | (df_salary['Salary'] > (Q3 + 1.5 * IQR))]
-print('outliers: ', outliers)
+print('\nOutliers: ', outliers)
 
 # check outliers salary - manually
+min_salary = df_salary['Salary'].min()
+max_salary = df_salary['Salary'].max()
+print('Minimum salary:', min_salary)
+print('Maximum salary:', max_salary)
 print('Mean of salary: ', mean_salary)
 print('Standard deviation of salary: ', std_salary)
 outliers_manually = []

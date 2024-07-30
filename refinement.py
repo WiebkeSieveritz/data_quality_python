@@ -21,7 +21,6 @@ df_salary_cleaned = df_salary.dropna()
 # review
 print('\nNumber of NA values for each column:')
 print(df_salary_cleaned.isnull().sum())
-print(df_salary_cleaned)
 
 
 # remove duplicates --> not used in the following - only demonstration
@@ -97,5 +96,4 @@ print(df_salary_cleaned)
 
 
 # save cleaned file
-df_salary_cleaned.to_csv(r'D:\Fortbildung\IU - Data Analyst Python\4. Modul - Data Quality and Data Wrangling\Task\
-Cleaned_Salary_Data.csv', index=False)
+df_salary_cleaned.to_csv(r'D:\Fortbildung\IU - Data Analyst Python\4. Modul - Data Quality and Data Wrangling\Task\Cleaned_Salary_Data.csv', index=False)

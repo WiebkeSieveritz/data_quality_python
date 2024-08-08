@@ -20,11 +20,11 @@ print(pivot_education)
 
 
 # check missing values
-missing_values_per_column = df_salary.isnull().sum()
+missing_values_per_column = df_salary.isnull().sum()  # missing values in cells
 print("\nMissing values per column:")
 print(missing_values_per_column)
 
-empty_rows = df_salary.isnull().all(axis=1)
+empty_rows = df_salary.isnull().all(axis=1)  # empty rows - all values in row are missing
 num_empty_rows = empty_rows.sum()
 print(f"\nNumber of empty rows: {num_empty_rows}\n")
 
@@ -35,10 +35,10 @@ print(filtered_wo_duplicates)
 
 
 # check duplicates
-duplicate_rows = df_salary[df_salary.duplicated(keep=False)]
+duplicate_rows = df_salary[df_salary.duplicated(keep=False)]  # marks all duplicated entries
 unique_duplicate_rows = duplicate_rows.drop_duplicates()
 
-num_unique_duplicates = unique_duplicate_rows.shape[0]
+num_unique_duplicates = unique_duplicate_rows.shape[0]  # tupel
 print(f"\nNumber of duplicated rows: {num_unique_duplicates}")
 
 # show duplicates
@@ -52,7 +52,7 @@ mean_salary = np.mean(df_salary['Salary'])
 std_salary = np.std(df_salary['Salary'])
 data_z = (df_salary['Salary']-mean_salary)/std_salary
 threshold = 3
-print(list(compress(df_salary, data_z >= threshold)))
+print(list(compress(df_salary, data_z >= threshold)))  # list where requirement is fulfilled
 
 # check outliers salary - boxplot
 Q1 = df_salary['Salary'].quantile(0.25)
